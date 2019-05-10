@@ -1,9 +1,11 @@
 package com.mmall.controller;
 
 import com.mmall.common.JsonData;
+import com.mmall.dto.AclModuleLevelDto;
 import com.mmall.model.SysAclModule;
 import com.mmall.param.AclModuleParam;
 import com.mmall.service.SysAclModuleService;
+import com.mmall.service.SysTreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,9 @@ public class SysAclModuleController {
     @Resource
     private SysAclModuleService sysAclModuleService;
 
+    @Resource
+    private SysTreeService sysTreeService;
+
     @RequestMapping("/acl.page")
     public ModelAndView page() {
         return new ModelAndView("acl");
@@ -39,10 +44,18 @@ public class SysAclModuleController {
         return JsonData.success();
     }
 
-    @RequestMapping("findAll.json")
+    @RequestMapping("/findAll.json")
     @ResponseBody
     public JsonData findAll() {
         List<SysAclModule> list = sysAclModuleService.findAll();
         return JsonData.success(list);
     }
+
+    @RequestMapping("/tree.json")
+    @ResponseBody
+    public JsonData findAll2Tree() {
+        List<AclModuleLevelDto> aclModuleLevelDtos = sysTreeService.aclModuleTree();
+        return JsonData.success(aclModuleLevelDtos);
+    }
+
 }
