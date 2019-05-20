@@ -1,6 +1,7 @@
 package com.mmall.service;
 
 import com.mmall.common.RequestHolder;
+import com.mmall.common.Sequence;
 import com.mmall.dao.SequenceGeneratorMapper;
 import com.mmall.dao.SysRoleMapper;
 import com.mmall.exception.ParamExcepiton;
@@ -23,8 +24,6 @@ public class SysRoleService {
 
     @Resource
     private SequenceGeneratorMapper sequenceGeneratorMapper;
-
-    private static final String SEQ_SYS_ROLE = "SEQ_SYS_ROLE";
 
     public void updateById(RoleParam param) {
         if(null == param.getId()) {
@@ -73,7 +72,7 @@ public class SysRoleService {
         }
         String operator = RequestHolder.getCurrentUser().getUsername();
         String ip = IpUtil.getRemoteIp(RequestHolder.getCurrentRequest());
-        SysRole sysRole = SysRole.builder().id(sequenceGeneratorMapper.nextLongValue(SEQ_SYS_ROLE)).name(param
+        SysRole sysRole = SysRole.builder().id(sequenceGeneratorMapper.nextLongValue(Sequence.SYS_ROLE_ID_SEQ)).name(param
         .getName()).remark(param.getRemark()).status(param.getStatus()).build();
         sysRole.setOperator(operator);
         sysRole.setOperatorIp(ip);

@@ -197,4 +197,9 @@
   <select id="findAll" resultMap="BaseResultMap">
     select <include refid="Base_Column_List" /> from sys_acl_module
   </select>
+
+  <select id="checkHasChildren" resultType="int" parameterType="string">
+    select count(1) from SYS_ACL_MODULE
+    where LEVELS like #{level} || '.%'
+  </select>
 </mapper>

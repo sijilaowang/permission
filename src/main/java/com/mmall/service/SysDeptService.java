@@ -2,6 +2,7 @@ package com.mmall.service;
 
 import com.google.common.base.Preconditions;
 import com.mmall.common.RequestHolder;
+import com.mmall.common.Sequence;
 import com.mmall.dao.SequenceGeneratorMapper;
 import com.mmall.dao.SysDeptMapper;
 import com.mmall.exception.ParamExcepiton;
@@ -25,7 +26,7 @@ public class SysDeptService {
     @Resource
     private SequenceGeneratorMapper sequenceGenerator;
 
-    private static final String SYS_DEPT_ID_SEQ = "SYS_DEPT_ID_SEQ";
+
 
     public void save(DeptParam param) {
         BeanValidator.check(param);
@@ -36,7 +37,7 @@ public class SysDeptService {
         SysDept dept = SysDept.builder().name(param.getName()).parentId(param.getParentId())
                 .seq(param.getSeq()).remark(param.getRemark()).build();
         dept.setLevels(LevelUtil.calculateLevel(getLevel(dept.getParentId()),dept.getParentId()));
-        dept.setId(sequenceGenerator.nextLongValue(SYS_DEPT_ID_SEQ));
+        dept.setId(sequenceGenerator.nextLongValue(Sequence.SYS_DEPT_ID_SEQ));
         dept.setOperator(RequestHolder.getCurrentUser().getUsername());//获取当前线程中的用户
         dept.setOperatorTime(new Date());
         dept.setOperatorIp(IpUtil.getRemoteIp(RequestHolder.getCurrentRequest()));//TODO

@@ -57,4 +57,6 @@ public interface SysAclModuleMapper {
     int countByNameAndParentId(@Param("parentId") Long parentId, @Param("name") String name, @Param("id") Long id);
 
     List<SysAclModule> findAll();
+
+    int checkHasChildren(String level);
 }

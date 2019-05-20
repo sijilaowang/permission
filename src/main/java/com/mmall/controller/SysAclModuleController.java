@@ -35,13 +35,13 @@ public class SysAclModuleController {
     @RequestMapping("/save.json")
     @ResponseBody
     public JsonData saveAclModule(AclModuleParam param) {
-        return JsonData.success();
+        return sysAclModuleService.save(param);
     }
 
     @RequestMapping("/update.json")
     @ResponseBody
     public JsonData updateAclModule(AclModuleParam param) {
-        return JsonData.success();
+        return sysAclModuleService.update(param);
     }
 
     @RequestMapping("/findAll.json")
@@ -58,4 +58,15 @@ public class SysAclModuleController {
         return JsonData.success(aclModuleLevelDtos);
     }
 
+    @RequestMapping("/delete.json")
+    @ResponseBody
+    public JsonData deleteAclModule(Long id) {
+        return sysAclModuleService.deleteAclModule(id);
+    }
+
+    @RequestMapping("/findById.json")
+    @ResponseBody
+    public JsonData findById(Long id) {
+        return sysAclModuleService.findById(id);
+    }
 }

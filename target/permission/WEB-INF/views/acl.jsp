@@ -219,20 +219,24 @@
 
 <script type="text/javascript">
     $(function() {
+        var optionStr = "";//下拉菜单中的option
+        var aclModuleData = {};//存储权限模块所有数据
         var aclModuleListTemplate = $("#aclModuleListTemplate").html();
         Mustache.parse(aclModuleListTemplate);
-
         var aclModuleId_ = -1;
         loadAllSysAclModule();
         function loadAllSysAclModule() {
             var url = "/sys/aclModule/tree.json";
             $.get(url,function(result) {
                 if(result.ret) {
+                    aclModuleData = result.data;
                     var aclModuleList = result.data;
                     var render = Mustache.render(aclModuleListTemplate,{
                         aclModuleList:aclModuleList,
                         "showDownAngle":function() {
-                            return (this.aclModuleList && this.aclModuleList.length > 0) ? "":"hidden";
+                            return function(text,render) {
+                                return (this.sysAclModuleList && this.sysAclModuleList.length > 0) ? "":"hidden";
+                            }
                         },
                         "displayClass":function() {
                             return "";
@@ -248,16 +252,41 @@
             });
         }
 
+        function reloadSysAclModuleTree() {
+            var url = "/sys/aclModule/tree.json";
+            $.get(url,function(result) {
+                if(result.ret) {
+                    aclModuleData = result.data;
+                    var aclModuleList = result.data;
+                    var render = Mustache.render(aclModuleListTemplate,{
+                        aclModuleList:aclModuleList,
+                        "showDownAngle":function() {
+                            return function(text,render) {
+                                return (this.sysAclModuleList && this.sysAclModuleList.length > 0) ? "":"hidden";
+                            }
+                        },
+                        "displayClass":function() {
+                            return "";
+                        }
+                    });
+                    $("#aclModuleList").html(render);
+                    recurRenderSysAclModule(result.data);
+                    bindClick();
+                } else {
+                    showMessage("加载权限",result.msg,false);
+                }
+            });
+        }
+
         //权限模块点击选中事件
         function aclModuleSelected(aclModuleId) {
+            //选中权限模块,加上标黄显示
             if(aclModuleId_ != -1) {
                 $("#aclModule_" + aclModuleId_ + " .dd2-content:first").removeClass("btn-yellow");
             }
-            if(aclModuleId != aclModuleId_) {
-                $("#aclModule_" + aclModuleId + " .dd2-content:first").addClass("btn-yellow");
-            }
-            aclModuleId_ = aclModuleId;
 
+            $("#aclModule_" + aclModuleId + " .dd2-content:first").addClass("btn-yellow");
+            aclModuleId_ = aclModuleId;
         }
 
         //初始化权限模块箭头,默认第一个展开,其他全部缩起
@@ -275,7 +304,17 @@
             for(var i = 0;i < data.length; i++) {
                 if(data[i].sysAclModuleList.length > 0) {
                     var aclModuleList = data[i].sysAclModuleList;
-                    var render = Mustache.render(aclModuleListTemplate,{aclModuleList:aclModuleList});
+                    var render = Mustache.render(aclModuleListTemplate,{
+                        aclModuleList:aclModuleList,
+                        "showDownAngle":function() {
+                            return function(text,render) {
+                                return (this.sysAclModuleList && this.sysAclModuleList.length > 0) ? "":"hidden";
+                            }
+                        },
+                        "displayClass":function() {
+                            return "";
+                        }
+                    });
                     $("#aclModule_" + data[i].id).append(render);
                     recurRenderSysAclModule(aclModuleList);
                 }
@@ -283,21 +322,46 @@
         }
 
         function bindClick() {
-            $(".aclModule-add").on("click",function(e) {
+            $(".aclModule-add").on('click',function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                $("#dialog-acl-form").dialog({
+                $("#dialog-aclModule-form").dialog({
                     modal:true,
                     title:"增加权限模块",
+                    open: function(event, ui){
+                        optionStr = "<option value='0'>---</option>";
+                        recurAclModuleSelect(aclModuleData,1);
+                        $("#parentId").empty();
+                        $("#parentId").append(optionStr);
+                    },
                     buttons:{
                         "保存":function(){
                             saveSysAclModule();
-                            $("#dialog-acl-form").dialog("close");
-                            loadAllSysAclModule();
                         },
                         "取消":function() {
                             $(this).dialog("close");
                         }
+                    }
+                });
+            });
+
+
+            $(".green").on("click",function(e){
+                e.preventDefault();
+                e.stopPropagation();
+                var id = $(this).attr("data-id");
+                console.log(id);
+                //收放效果
+                $("#aclModule_" + id).children(".dd-list").toggle("fast",function () {
+                    //表示隐藏,修改下角标为上角标
+                    if("display: none;" == $("#aclModule_" + id).children(".dd-list").attr("style")) {
+                        $("#aclModule_" + id).children().find("i:first").removeClass("fa-angle-double-down");
+                        $("#aclModule_" + id).children().find("i:first").addClass("fa-angle-double-up");
+                    }
+                    //表示显示,修改上角标为下角标
+                    if("display: block;" == $("#aclModule_" + id).children(".dd-list").attr("style")) {
+                        $("#aclModule_" + id).children().find("i:first").removeClass("fa-angle-double-up");
+                        $("#aclModule_" + id).children().find("i:first").addClass("fa-angle-double-down");
                     }
                 });
             });
@@ -307,16 +371,87 @@
                 var aclModuleId = $(this).attr("data-id");
                 aclModuleSelected(aclModuleId);
             });
+            $(".aclModule-edit").on('click',function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var id = $(this).attr("data-id");
+                var target = "";
+                $.post("/sys/aclModule/findById.json",{id:id},function(result){
+                    if(result.ret) {
+                        target = result.data;
+                    } else {
+                        showMessage("查询权限模块",result.msg,false);
+                    }
+                });
+                $("#dialog-aclModule-form").dialog({
+                    modal:true,
+                    title:"修改权限模块",
+                    open: function(event, ui){
+                        optionStr = "<option value='0'>---</option>";
+                        recurAclModuleSelect(aclModuleData,1);
+                        $("#parentId").empty();
+                        $("#parentId").append(optionStr);
+                        $("#aclModuleName").val(target.name);
+                        $("#aclModuleSeq").val(target.seq);
+                        $("#aclModuleStatus").val(target.status);
+                        $("#aclModuleRemark").val(target.remark);
+                    },
+                    buttons:{
+                        "保存":function(){
+                            saveSysAclModule();
+                        },
+                        "取消":function() {
+                            $(this).dialog("close");
+                        }
+                    }
+                });
+            });
+            $(".aclModule-delete").on("click",function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var id = $(this).attr("data-id");
+                var name = $(this).attr("data-name");
+                if(confirm("确定要删除[" + name + "]吗?")) {
+                    $.post("/sys/aclModule/delete.json",{id:id},function(result){
+                        if(result.ret) {
+                            showMessage("删除权限模块","success",true);
+                            reloadSysAclModuleTree();
+                        } else {
+                            showMessage("删除权限模块",result.msg,false);
+                        }
+                    });
+                }
+            });
+
+        }
+
+        function recurAclModuleSelect(aclModuleData,level) {
+            level = level | 0;
+            if(aclModuleData ||aclModuleData.length > 0) {
+                for(var i = 0;i < aclModuleData.length;i++) {
+                    var blank = "";
+                    if(level > 1) {
+                        for(var j = 0;j < level ;j++) {
+                            blank += "　";
+                        }
+                        blank += "∟";
+                    }
+                    optionStr += Mustache.render("<option value='{{id}}'>{{name}}</option>",{id:aclModuleData[i].id,name:blank + aclModuleData[i].name});
+                    recurAclModuleSelect(aclModuleData[i].sysAclModuleList,level + 1);
+                }
+            }
         }
 
         function saveSysAclModule() {
             var url = "/sys/aclModule/save.json";
-            var data = $("#aclForm").serializeArray();
+            var data = $("#aclModuleForm").serializeArray();
             $.post(url,data,function(result) {
                 if(result.ret) {
                     showMessage("新增权限模块","success",true);
+                    $("#dialog-aclModule-form").dialog("close");
+                    reloadSysAclModuleTree();
                 } else {
-                    showMessage("新增权限模块",result.msg,flase);
+                    showMessage("新增权限模块",result.msg,false);
                 }
             });
         }

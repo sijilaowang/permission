@@ -6,6 +6,7 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Data
 public class AclModuleParam {
@@ -18,10 +19,10 @@ public class AclModuleParam {
 
     private Long parentId = 0L;
 
-    @NotBlank(message = "权限模块展示顺序不可以为空")
+    @NotNull(message = "权限模块展示顺序不可以为空")
     private Long seq;
 
-    @NotBlank(message = "权限模块状态不能为空")
+    @NotNull(message = "权限模块状态不能为空")
     @Min(value = 0,message = "权限模块状态不合法")
     @Max(value = 1,message = "权限模块状态不合法")
     private Short status;

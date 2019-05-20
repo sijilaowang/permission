@@ -160,7 +160,9 @@
                 $("#dialog-role-form").dialog({
                     modal:true,
                     title:"增加角色",
-                    open:function() {},
+                    open:function() {
+                        $("#roleForm")[0].reset();
+                    },
                     buttons:{
                         "保存":function() {
                             saveRole();
@@ -210,7 +212,7 @@
             });
 
             $(".role-delete").on("click",function () {
-                var id = $("#roleId").val();
+                var id = $(this).attr("data-id");
                 var roleName = $(this).attr("data-name");
                 if(confirm("确定要删除[" + roleName + "]吗?")) {
                     var url = "/sys/role/delete.json";

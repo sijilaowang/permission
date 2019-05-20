@@ -206,7 +206,6 @@
         loadAllUserList();
         function loadDeptTree() {
             $.get("/sys/dept/tree.json", {}, function (result) {
-                //console.log(result.data);
                 if (result.ret) {
                     deptList = result.data;
                     var rendered = Mustache.render(deptListTemplate, {deptList: result.data});
@@ -272,8 +271,8 @@
                     model: true,
                     title: "编辑部门",
                     open: function(event, ui) {
-                        $(".ui-dialog-titlebar-close", $(this).parent()).hide();
-                        optionStr = "<option value=\"0\">-</option>";
+                        //$(".ui-dialog-titlebar-close", $(this).parent()).hide();
+                        optionStr = "<option value=\"0\">---</option>";
                         recursiveRenderDeptSelect(deptList, 1);
                         $("#deptForm")[0].reset();
                         $("#parentId").html(optionStr);
@@ -324,7 +323,7 @@
                 model: true,
                 title: "新增部门",
                 open: function(event, ui) {
-                    $(".ui-dialog-titlebar-close", $(this).parent()).hide();
+                   // $(".ui-dialog-titlebar-close", $(this).parent()).hide();
                     optionStr = "<option value=\"0\">-</option>";
                     recursiveRenderDeptSelect(deptList, 1);
                     $("#deptForm")[0].reset();

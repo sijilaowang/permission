@@ -18,6 +18,7 @@ public class RoleParam {
     @Length(min = 1,max = 20, message = "用户名长度需要在20个字以内")
     private String name;
 
+
     @Min(value = 0,message = "用户状态不合法")
     @Max(value = 1,message = "用户状态不合法")
     private Short status = 1;
