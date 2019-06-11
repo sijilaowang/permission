@@ -344,13 +344,11 @@
                     }
                 });
             });
-
-
+            //点击箭头伸缩效果
             $(".green").on("click",function(e){
                 e.preventDefault();
                 e.stopPropagation();
                 var id = $(this).attr("data-id");
-                console.log(id);
                 //收放效果
                 $("#aclModule_" + id).children(".dd-list").toggle("fast",function () {
                     //表示隐藏,修改下角标为上角标
@@ -376,6 +374,7 @@
                 e.stopPropagation();
                 var id = $(this).attr("data-id");
                 var target = "";
+                $.ajaxSettings.async = false;
                 $.post("/sys/aclModule/findById.json",{id:id},function(result){
                     if(result.ret) {
                         target = result.data;
@@ -383,6 +382,7 @@
                         showMessage("查询权限模块",result.msg,false);
                     }
                 });
+                $.ajaxSettings.async = true;
                 $("#dialog-aclModule-form").dialog({
                     modal:true,
                     title:"修改权限模块",
@@ -398,7 +398,7 @@
                     },
                     buttons:{
                         "保存":function(){
-                            saveSysAclModule();
+                            updateSysAclModule();
                         },
                         "取消":function() {
                             $(this).dialog("close");
@@ -452,6 +452,20 @@
                     reloadSysAclModuleTree();
                 } else {
                     showMessage("新增权限模块",result.msg,false);
+                }
+            });
+        }
+
+        function updateSysAclModule() {
+            var url = "/sys/aclModule/update.json";
+            var data = $("#aclModuleForm").serializeArray();
+            $.post(url,data,function(result) {
+                if(result.ret) {
+                    showMessage("修改权限模块","success",true);
+                    $("#dialog-aclModule-form").dialog("close");
+                    reloadSysAclModuleTree();
+                } else {
+                    showMessage("修改权限模块",result.msg,false);
                 }
             });
         }

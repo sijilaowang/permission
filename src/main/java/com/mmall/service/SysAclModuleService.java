@@ -92,7 +92,13 @@ public class SysAclModuleService {
     public JsonData deleteAclModule(Long id) {
         SysAclModule sysAclModule = sysAclModuleMapper.selectByPrimaryKey(id);
         if(StringUtils.isNotBlank(sysAclModule.getLevels())) {
-            int count = sysAclModuleMapper.checkHasChildren(sysAclModule.getLevels());
+            //判断当前层级下面是否存在子层级,判断规则
+            //id  name    parentId   level
+            //22 公共管理   0         0
+            //23 设备管理   22        0.22
+            //24 服务器管理 23         0.22.23
+            //判断 level.id % 下是否存在 数据
+            int count = sysAclModuleMapper.checkHasChildren(sysAclModule.getLevels() + "." + sysAclModule.getId());
             if(count > 0) {
                 return JsonData.fail("删除权限模块出错,存在下级权限模块");
             }

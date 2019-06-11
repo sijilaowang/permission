@@ -200,6 +200,6 @@
 
   <select id="checkHasChildren" resultType="int" parameterType="string">
     select count(1) from SYS_ACL_MODULE
-    where LEVELS like #{level} || '.%'
+    where LEVELS like #{level} || '%'
   </select>
 </mapper>

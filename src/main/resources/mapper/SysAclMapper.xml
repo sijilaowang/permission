@@ -211,4 +211,11 @@
     select <include refid="Base_Column_List" />
     from sys_acl
   </select>
+
+  <select id="countSysAclByNameAndId" parameterType="map" resultType="int">
+    select count(1)
+    from sys_acl
+    where acl_module_id = #{aclModuleId}
+    and name = #{name}
+  </select>
 </mapper>

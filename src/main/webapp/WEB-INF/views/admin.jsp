@@ -200,7 +200,8 @@
 </script>
 <![endif]-->
 
-<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<%--<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>--%>
+<script src="/assets/js/bootstrap.min.js"></script>
 
 <!-- page specific plugin scripts -->
 
