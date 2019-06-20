@@ -27,6 +27,25 @@
     ID, CODE, NAME, ACL_MODULE_ID, URL, TYPE, STATUS, SEQ, REMARK, OPERATOR, OPERATOR_TIME, 
     OPERATOR_IP
   </sql>
+
+  <resultMap id="AclAndAclModuleResultMap" type="com.mmall.model.SysAcl">
+    <id column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="CODE" property="code" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="ACL_MODULE_ID" property="aclModuleId" jdbcType="DECIMAL" />
+    <result column="URL" property="url" jdbcType="VARCHAR" />
+    <result column="TYPE" property="type" jdbcType="DECIMAL" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+    <result column="SEQ" property="seq" jdbcType="DECIMAL" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="OPERATOR" property="operator" jdbcType="VARCHAR" />
+    <result column="OPERATOR_TIME" property="operatorTime" jdbcType="TIMESTAMP" />
+    <result column="OPERATOR_IP" property="operatorIp" jdbcType="VARCHAR" />
+    <association property="sysAclModule" javaType="com.mmall.model.SysAclModule">
+      <result column="name" property="name"></result>
+    </association>
+  </resultMap>
+
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
     <!--
       WARNING - @mbggenerated
@@ -210,5 +229,38 @@
   <select id="findAll" resultMap="BaseResultMap">
     select <include refid="Base_Column_List" />
     from sys_acl
+  </select>
+
+  <select id="countSysAclByNameAndId" parameterType="map" resultType="int">
+    select count(1)
+    from sys_acl
+    where acl_module_id = #{aclModuleId}
+    and name = #{name}
+  </select>
+
+  <select id="selectByAclModuleId" parameterType="map" resultMap="AclAndAclModuleResultMap">
+    select t.* from
+    (
+    select <include refid="Base_Column_List"/>,rownum rn
+    from sys_acl
+    where acl_module_id = #{aclModuleId}
+    ) t
+    where rn between #{page.startRow} and #{page.endRow}
+  </select>
+
+  <select id="countAclById" parameterType="long" resultType="int">
+    select  count(1) from sys_acl
+    where acl_module_id = #{aclModuleId}
+  </select>
+
+  <select id="getByIdList" parameterType="long" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from sys_acl
+    <if test="idList != null">
+      where id in
+      <foreach collection="idList" item="item" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
   </select>
 </mapper>

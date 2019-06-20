@@ -135,4 +135,8 @@
       OPERATOR_IP = #{operatorIp,jdbcType=VARCHAR}
     where ID = #{id,jdbcType=DECIMAL}
   </update>
+  
+  <select id="getRoleIdListByUserId" parameterType="long" resultType="long">
+
+  </select>
 </mapper>

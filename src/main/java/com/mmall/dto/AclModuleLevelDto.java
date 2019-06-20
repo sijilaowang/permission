@@ -13,6 +13,8 @@ public class AclModuleLevelDto extends SysAclModule {
 
     private List<AclModuleLevelDto> sysAclModuleList = Lists.newArrayList();
 
+    private List<AclDto> aclDtoList = Lists.newArrayList();
+
     /**
      * 将SysAclModule类型数据转成成AclModuleLevelDto 类型
      * @param sysAclModule

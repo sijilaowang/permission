@@ -135,4 +135,16 @@
       OPERATOR_IP = #{operatorIp,jdbcType=VARCHAR}
     where ID = #{id,jdbcType=DECIMAL}
   </update>
+
+  <select id="getAclIdListByRoleIdList" parameterType="long" resultType="long">
+    select acl_id
+    from SYS_ROLE_ACL
+    <if test="roleIdList != null">
+      where role_id in
+      <foreach collection="roleIdList" item="item" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+
+  </select>
 </mapper>

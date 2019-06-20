@@ -223,6 +223,9 @@
         var aclModuleData = {};//存储权限模块所有数据
         var aclModuleListTemplate = $("#aclModuleListTemplate").html();
         Mustache.parse(aclModuleListTemplate);
+        var aclListTemplate = $("#aclListTemplate").html();
+        Mustache.parse(aclListTemplate);
+
         var aclModuleId_ = -1;
         loadAllSysAclModule();
         function loadAllSysAclModule() {
@@ -287,6 +290,48 @@
 
             $("#aclModule_" + aclModuleId + " .dd2-content:first").addClass("btn-yellow");
             aclModuleId_ = aclModuleId;
+
+            //加载权限点列表####
+            var url = "/sys/acl/list.json";
+            $.post(url,{aclModuleId:aclModuleId},function (result) {
+                console.log(result);
+                if(result.ret) {
+                    var aclList = result.data.list;
+                    var rendered = Mustache.render(aclListTemplate,{
+                        aclList:aclList,
+                        showAclModuleName:function() {
+                            return this.sysAclModule.name;
+                        },
+                        showType:function() {
+                          if(this.type == 1) return "菜单";
+                          if(this.type == 2) return "按钮";
+                          if(this.type == 3) return "其他";
+                        },
+                        showStatus:function() {
+                            return this.status==1?"有效":(this.status==0?"删除":"无效");
+                        },
+                        "bold":function() {
+                            return function(text,render){
+                                var status  = render(text);
+                                if(status == "有效") {
+                                    return "<span class='label label-sm label-success'>有效</span>";
+                                } else if(status == "无效") {
+                                    return "<span class='label label-sm label-warning'>无效</span>";
+                                } else {
+                                    return "<span class='label label-sm'>删除</span>";
+                                }
+                            };
+                        }
+                    });
+                    $("#aclList").html(rendered);
+                    var pageSize = $("#pageSize").val();
+                    var pageNo = $("#userPage pageNo").val() || 1;
+                    bindClick();
+                    var total = result.data.total;
+                    var currentSize = total > 0 ? result.data.list.length : 0;//如果总数大于0,则取结果集的条数
+                    renderPage(url,total,pageNo,pageSize,currentSize,"aclPage",null);
+                }
+            });
         }
 
         //初始化权限模块箭头,默认第一个展开,其他全部缩起

@@ -3,10 +3,13 @@ package com.mmall.controller;
 import com.mmall.common.JsonData;
 import com.mmall.model.SysRole;
 import com.mmall.param.RoleParam;
+import com.mmall.service.SysCoreService;
 import com.mmall.service.SysRoleService;
+import com.mmall.service.SysTreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -20,6 +23,9 @@ public class SysRoleController {
 
     @Resource
     private SysRoleService sysRoleService;
+
+    @Resource
+    private SysTreeService sysTreeService;
 
     @RequestMapping("/role.page")
     public ModelAndView rolePage() {
@@ -58,11 +64,16 @@ public class SysRoleController {
         return JsonData.success(sysRole);
     }
 
-    @RequestMapping("update.json")
+    @RequestMapping("/update.json")
     @ResponseBody
     public JsonData updateById(RoleParam param) {
         sysRoleService.updateById(param);
         return JsonData.success();
     }
 
+    @RequestMapping("/roleTree.json")
+    @ResponseBody
+    public JsonData roleTree(@RequestParam("roleId") Long roleId) {
+        return JsonData.success(sysTreeService.roleTree(roleId));
+    }
 }

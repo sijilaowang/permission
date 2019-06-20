@@ -26,6 +26,8 @@ public class LoginFilter implements Filter {
             response.sendRedirect(path);
             return;
         }
+        //在登录的过滤器中,登录用户之后,在ThreadLocal中存入登录的用户信息,请求对象request,
+        //在Http拦截器中,postHandle,afterCompletion中移除存入的信息
         RequestHolder.add(sysUser);
         RequestHolder.add(request);
         filterChain.doFilter(servletRequest,servletResponse);

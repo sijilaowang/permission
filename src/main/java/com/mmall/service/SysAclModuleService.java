@@ -55,7 +55,7 @@ public class SysAclModuleService {
         }
         SysAclModule before = sysAclModuleMapper.selectByPrimaryKey(param.getId());
         Preconditions.checkNotNull(before,"权限模块不存在");
-        SysAclModule after = SysAclModule.builder().id(param.getId()).name(param.getName()).parentId(param.getParentId())
+        SysAclModule after = SysAclModule.builder().id(before.getId()).name(param.getName()).parentId(param.getParentId())
                 .status(param.getStatus()).remark(param.getRemark()).build();
         after.setLevels(LevelUtil.calculateLevel(getLevel(param.getParentId()),param.getParentId()));
         after.setOperator(RequestHolder.getCurrentUser().getUsername());

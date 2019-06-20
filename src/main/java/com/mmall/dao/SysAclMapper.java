@@ -1,5 +1,6 @@
 package com.mmall.dao;
 
+import com.mmall.beans.PageHelper;
 import com.mmall.model.SysAcl;
 import org.apache.ibatis.annotations.Param;
 
@@ -56,5 +57,11 @@ public interface SysAclMapper {
 
     List<SysAcl> findAll();
 
-    int countSysAclByNameAndId(@Param("name") String name,@Param("aclModuleId") Integer aclModuleId);
+    int countSysAclByNameAndId(@Param("name") String name,@Param("aclModuleId") Long aclModuleId);
+
+    List<SysAcl> selectByAclModuleId(@Param("aclModuleId") Long aclModuleId, @Param("page") PageHelper pageHelper);
+
+    int countAclById(Long aclModuleId);
+
+    List<SysAcl> getByIdList(@Param("idList") List<Long> idList);
 }
