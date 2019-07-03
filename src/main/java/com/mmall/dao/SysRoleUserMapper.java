@@ -54,4 +54,6 @@ public interface SysRoleUserMapper {
     int updateByPrimaryKey(SysRoleUser record);
 
     List<Long> getRoleIdListByUserId(Long userId);
+
+    List<Long> findUserIdByRoleId(Long roleId);
 }

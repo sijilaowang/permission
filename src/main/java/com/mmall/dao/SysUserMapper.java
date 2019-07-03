@@ -71,4 +71,8 @@ public interface SysUserMapper {
     int countUser(@Param("dept_id") Long deptId);
 
     SysUser findUserById(@Param("id") Long id);
+
+    List<SysUser> findSelectedUserByRoleId(@Param("roleIdList") List<Long> roleIdList);
+
+    List<SysUser> findUnSelectedUserByRoleId(@Param("roleIdList") List<Long> roleIdList);
 }

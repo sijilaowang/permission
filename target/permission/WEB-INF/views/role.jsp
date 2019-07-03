@@ -146,9 +146,13 @@
         var aclPrefix = "a_";
         var nodeMap = {};
         var lastClickRoleId = -1;
+        var hasMultiSelect = false;
         var roleListTemplate = $("#roleListTemplate").html();
         Mustache.parse(roleListTemplate);
-
+        var selectedUsersTemplate = $("#selectedUsersTemplate").html();
+        Mustache.parse(selectedUsersTemplate);
+        var unSelectedUsersTemplate = $("#unSelectedUsersTemplate").html();
+        Mustache.parse(unSelectedUsersTemplate);
         var setting = {
           check:{
               enable:true,
@@ -166,6 +170,22 @@
               onClick:onClickTreeNode
           }
         };
+
+        function getTreeSelectedId() {
+            //获取ztree数据
+            var treeObj = $.fn.zTree.getZTreeObj("roleAclTree");
+            var nodes = treeObj.getCheckedNodes(true);
+            var v = "";
+            console.log(nodes);
+            for(var i = 0;i < nodes.length;i++) {
+                //如果节点的id是权限点id开头
+                if(nodes[i].id.startsWith(aclPrefix)) {
+                    v += "," + nodes[i].dataId;
+                }
+            }
+            //拼接出来的数据格式为,1,2,3,4... 所以要从第一位开始取,否则 取''
+            return v.length > 0 ? v.substring(1) : '';
+        }
 
         function onClickTreeNode(e,treeId,TreeNode) {
             var zTree = $.fn.zTree.getZTreeObj("roleAclTree");
@@ -198,7 +218,6 @@
         }
 
         function renderRoleTree(aclModuleList) {
-            //console.log(aclModuleList);
             //每次渲染前先清空zTree数据,zTree chkDisabled 属性true 表示被禁用,false表示节点可以使用
             if(aclModuleList && aclModuleList.length > 0) {
                 $(aclModuleList).each(function(i,aclModule){
@@ -232,7 +251,8 @@
                         };
                     }
 
-                    //渲染
+                    //如果下一级权限模块中有true,则上一次权限模块的open 也是true
+
                    /* var tempAclModule = nodeMap[modulePrefix + aclModule.id];
                     while(hasChecked && tempAclModule) {
                         nodeMap[tempAclModule.id] = {
@@ -263,6 +283,40 @@
             });
         }
 
+        function loadRoleUser(roleId) {
+            if(roleId == -1) {
+                return;
+            }
+            $.ajax({
+                url:"/sys/user/findUserList.json",
+                data:{
+                    roleId:roleId
+                },
+                type:'POST',
+                success:function (result) {
+                    if(result.ret) {
+                        console.log(result);
+                        var renderSelectedUser = Mustache.render(selectedUsersTemplate,{userList:result.data.selected});
+                        var renderUnSelectedUser = Mustache.render(unSelectedUsersTemplate,{userList:result.data.unSelected});
+                        $("#roleUserList").html(renderSelectedUser + renderUnSelectedUser);
+                        //将选中用户和不选中用户区分开来
+                        if(!hasMultiSelect) {
+                            $('select[name="roleUserList"]').bootstrapDualListbox({
+                                showFilterInputs: false,
+                                moveOnSelect: false,
+                                infoText: false
+                            });
+                            hasMultiSelect = true;
+                        } else {
+                            $('select[name="roleUserList"]').bootstrapDualListbox('refresh', true);
+                        }
+                    } else {
+                        showMessage("加载角色与用户数据",result.msg,false)
+                    }
+                }
+            });
+        }
+
         function handleDeptSelected(roleId) {
             if (lastClickRoleId != -1) {
                 var lastDept = $("#role_" + lastClickRoleId + " .dd2-content:first");
@@ -274,9 +328,57 @@
             currentDept.addClass("no-hover");
             lastClickRoleId = roleId;
             loadRoleAcl(roleId);
+            loadRoleUser(roleId);
         }
 
         function bindRoleClick() {
+            $(".saveRoleUser").on('click',function(e){
+                e.preventDefault();
+                e.stopPropagation();
+
+                if(lastRoleId == -1) {
+                    showMessage("保存角色与用户的关系","请现在左侧选择需要操作的角色",false);
+                    return;
+                }
+                $.ajax({
+                    url:'/sys/role/changeUsers.json',
+                    data:{
+                        roleId:lastRoleId,
+                        userIds:$("#roleUserList").val() ? $("#roleUserList").val().join(",") : '' //获取角色与用户选中id,拼接成1,2,xx
+                    },
+                    type:'POST',
+                    success:function(result) {
+                        if(result.ret) {
+                            showMessage("保存角色与用户的关系", "操作成功", false);
+                        } else {
+                            showMessage("保存角色与用户的关系", result.msg, false);
+                        }
+                    }
+                });
+            });
+
+            $(".saveRoleAcl").on('click',function(e){
+                var roleId = lastClickRoleId;
+                if(roleId == '' || roleId == "-1") {
+                    showMessage("保存角色与权限关系","请先选择要对应的角色",false);
+                    return;
+                }
+                $.ajax({
+                    url:'/sys/role/saveRoleAcl.json',
+                    data:{
+                        roleId:roleId,
+                        selectedIds:getTreeSelectedId()
+                    },
+                    type:'POST',
+                    success:function(result) {
+                        if(result.ret) {
+                            loadRoleAcl(roleId);
+                        } else {
+                            showMessage("保存角色与权限点的关系",result.msg,false);
+                        }
+                    }
+                });
+            });
 
             //角色点击事件
             $(".role-name").on('click',function(e) {

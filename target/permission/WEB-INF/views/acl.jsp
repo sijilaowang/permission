@@ -294,7 +294,6 @@
             //加载权限点列表####
             var url = "/sys/acl/list.json";
             $.post(url,{aclModuleId:aclModuleId},function (result) {
-                console.log(result);
                 if(result.ret) {
                     var aclList = result.data.list;
                     var rendered = Mustache.render(aclListTemplate,{

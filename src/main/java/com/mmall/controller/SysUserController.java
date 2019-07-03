@@ -57,4 +57,10 @@ public class SysUserController {
         SysUser sysUser = sysUserService.findUserById(param.getId());
         return JsonData.success(sysUser);
     }
+
+    @RequestMapping("/findUserList.json")
+    @ResponseBody
+    public JsonData findAllUser(Long roleId) {
+        return JsonData.success(sysUserService.findUserByRoleId(roleId));
+    }
 }

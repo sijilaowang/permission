@@ -283,4 +283,22 @@
     from sys_user
     where ID = #{id,jdbcType=DECIMAL}
   </select>
+
+  <select id="findSelectedUserByRoleId" resultMap="BaseResultMap" parameterType="long">
+    select <include refid="Base_Column_List"/>
+    from sys_user
+    where id in
+    <foreach collection="roleIdList" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
+
+  <select id="findUnSelectedUserByRoleId" resultMap="BaseResultMap" parameterType="long">
+    select <include refid="Base_Column_List"/>
+    from sys_user
+    where id not in
+    <foreach collection="roleIdList" item="item" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+  </select>
 </mapper>

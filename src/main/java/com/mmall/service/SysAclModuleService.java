@@ -68,7 +68,7 @@ public class SysAclModuleService {
         return JsonData.fail("更新失败");
     }
 
-    @Transactional
+
     public void updateWithChild(AclModuleParam param) {
 
     }

@@ -13,6 +13,7 @@ import com.mmall.util.IpUtil;
 import com.mmall.util.LevelUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sun.misc.Request;
 
 import javax.annotation.Resource;
@@ -60,8 +61,8 @@ public class SysDeptService {
         updateWithChild(before,after);
     }
 
-    //@Transactional
-    private void updateWithChild(SysDept before,SysDept after) {
+    @Transactional
+    public void updateWithChild(SysDept before,SysDept after) {
         String newLevelPrefix = after.getLevels();
         String oldLevelPrefix = before.getLevels();
         if (!after.getLevels().equals(before.getLevels())) {

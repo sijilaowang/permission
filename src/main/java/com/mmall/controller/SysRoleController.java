@@ -4,10 +4,12 @@ import com.mmall.common.JsonData;
 import com.mmall.model.SysRole;
 import com.mmall.param.RoleParam;
 import com.mmall.service.SysCoreService;
+import com.mmall.service.SysRoleAclService;
 import com.mmall.service.SysRoleService;
 import com.mmall.service.SysTreeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,6 +28,9 @@ public class SysRoleController {
 
     @Resource
     private SysTreeService sysTreeService;
+
+    @Resource
+    private SysRoleAclService sysRoleAclService;
 
     @RequestMapping("/role.page")
     public ModelAndView rolePage() {
@@ -75,5 +80,18 @@ public class SysRoleController {
     @ResponseBody
     public JsonData roleTree(@RequestParam("roleId") Long roleId) {
         return JsonData.success(sysTreeService.roleTree(roleId));
+    }
+
+    @RequestMapping("/saveRoleAcl.json")
+    @ResponseBody
+    public JsonData saveRoleAcl(@RequestParam("roleId") Long roleId,@RequestParam("selectedIds") String selectedIds) {
+        sysRoleAclService.saveRoleAcl(roleId,selectedIds);
+        return JsonData.success();
+    }
+
+    @RequestMapping("/changeUsers.json")
+    @ResponseBody
+    public JsonData changeUsers(@RequestParam("roleId") Long roleId,@RequestParam("userIds") String  userIds) {
+        return null;
     }
 }

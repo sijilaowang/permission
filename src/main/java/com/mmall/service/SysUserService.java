@@ -1,21 +1,27 @@
 package com.mmall.service;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mmall.beans.PageHelper;
 import com.mmall.beans.PageVO;
 import com.mmall.dao.SequenceGeneratorMapper;
+import com.mmall.dao.SysRoleUserMapper;
 import com.mmall.dao.SysUserMapper;
 import com.mmall.exception.ParamExcepiton;
+import com.mmall.model.SysRoleUser;
 import com.mmall.model.SysUser;
 import com.mmall.param.UserParam;
 import com.mmall.util.BeanValidator;
 import javafx.util.Builder;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class SysUserService {
@@ -24,6 +30,9 @@ public class SysUserService {
     private SysUserMapper sysUserMapper;
     @Resource
     private SequenceGeneratorMapper sequenceGenerator;
+
+    @Resource
+    private SysRoleUserMapper sysRoleUserMapper;
 
     private static final String SYS_USER_ID_SEQ = "SYS_USER_ID_SEQ";
 
@@ -94,5 +103,21 @@ public class SysUserService {
 
     public SysUser findUserById(Long id) {
         return sysUserMapper.findUserById(id);
+    }
+
+    public Map<String,List<SysUser>> findUserByRoleId(Long roleId) {
+        Map<String,List<SysUser>> map = Maps.newHashMap();
+        List<Long> userIdList = sysRoleUserMapper.findUserIdByRoleId(roleId);
+        List<SysUser> selectedUserList = sysUserMapper.findSelectedUserByRoleId(userIdList);
+        List<SysUser> unSelectedUserList = sysUserMapper.findUnSelectedUserByRoleId(userIdList);
+        if(CollectionUtils.isEmpty(selectedUserList)) {
+            selectedUserList = Lists.<SysUser>newArrayList();
+        }
+        if(CollectionUtils.isEmpty(unSelectedUserList)) {
+            unSelectedUserList = Lists.<SysUser>newArrayList();
+        }
+        map.put("selected", selectedUserList);
+        map.put("unSelected", unSelectedUserList);
+        return map;
     }
 }

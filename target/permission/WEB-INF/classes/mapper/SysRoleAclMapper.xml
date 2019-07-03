@@ -46,7 +46,7 @@
     insert into SYS_ROLE_ACL (ID, ROLE_ID, ACL_ID, 
       OPERATOR, OPERATOR_TIME, OPERATOR_IP
       )
-    values (#{id,jdbcType=DECIMAL}, #{roleId,jdbcType=DECIMAL}, #{aclId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=DECIMAL}, #{roleId,jdbcType=DECIMAL}, #{aclId,jdbcType=DECIMAL},
       #{operator,jdbcType=VARCHAR}, #{operatorTime,jdbcType=TIMESTAMP}, #{operatorIp,jdbcType=VARCHAR}
       )
   </insert>
@@ -147,4 +147,26 @@
     </if>
 
   </select>
+
+  <delete id="deleteByRoleId" parameterType="long">
+    delete from SYS_ROLE_ACL
+    where role_id = #{roleId}
+  </delete>
+
+  <insert id="batchInsert" parameterType="map" useGeneratedKeys="false">
+    <!-- mysql 支持 insert into table_name (1,2,3,4) values (1,2,3,4),(1,2,3,4),()... 这种语法
+    insert into SYS_ROLE_ACL (ID,ROLE_ID, ACL_ID,OPERATOR, OPERATOR_TIME, OPERATOR_IP)
+    values
+      <foreach collection="roleAclList" item="item" separator=",">
+        (#{item.id},#{item.roleId}, #{item.aclId},#{item.operator}, #{item.operatorTime}, #{item.operatorIp})
+      </foreach>
+     -->
+    <!--oracle批量insert 方式一 必须写上这个useGeneratedKeys="false" -->
+      insert into SYS_ROLE_ACL (ID,ROLE_ID, ACL_ID,OPERATOR, OPERATOR_TIME, OPERATOR_IP) 
+      <foreach collection="roleAclList" item="item" open="(" separator="union all" close=")">
+        select
+          #{item.id},#{item.roleId}, #{item.aclId},#{item.operator}, #{item.operatorTime}, #{item.operatorIp}
+        from dual
+      </foreach>
+  </insert>
 </mapper>
